@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="xunitv3.template/xunitv3.template.csproj" />
+  <Project Path="xunitv3.template.Aot/xunitv3.template.Aot.csproj" />
+  <Project Path="xunitv3.template.Aot.Generator/xunitv3.template.Aot.Generator.csproj" />
 </Solution>

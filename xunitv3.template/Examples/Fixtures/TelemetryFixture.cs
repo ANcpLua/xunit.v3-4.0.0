@@ -8,9 +8,10 @@ namespace xunitv3.template.Examples.Fixtures;
 
 /// <summary>
 /// Assembly fixture (one instance per test assembly, injected by constructor) that also opts into the 4.0
-/// fixture lifecycle hooks: <see cref="INotifyTestLifecycle"/> is called around every test in the assembly.
+/// fixture lifecycle hooks: <see cref="INotifyTestLifecycle"/> is called around every test in the assembly,
+/// <see cref="INotifyTestAssemblyLifecycle"/> once around the assembly.
 /// </summary>
-public sealed class TelemetryFixture : IAsyncLifetime, INotifyTestLifecycle
+public sealed class TelemetryFixture : IAsyncLifetime, INotifyTestLifecycle, INotifyTestAssemblyLifecycle
 {
     private static int _instances;
 
@@ -23,6 +24,8 @@ public sealed class TelemetryFixture : IAsyncLifetime, INotifyTestLifecycle
 
     public bool Initialized { get; private set; }
 
+    public bool AssemblyStarted { get; private set; }
+
     public IReadOnlyCollection<string> Started => _started.Keys.ToArray();
 
     public IReadOnlyCollection<string> Finished => _finished.Keys.ToArray();
@@ -34,6 +37,12 @@ public sealed class TelemetryFixture : IAsyncLifetime, INotifyTestLifecycle
     }
 
     public ValueTask DisposeAsync() => default;
+
+    public void OnTestAssemblyStarting(IXunitTestAssembly testAssembly) => AssemblyStarted = true;
+
+    public void OnTestAssemblyFinished(IXunitTestAssembly testAssembly)
+    {
+    }
 
     public void OnTestStarting(IXunitTest test) => _started[test.TestDisplayName] = default;
 

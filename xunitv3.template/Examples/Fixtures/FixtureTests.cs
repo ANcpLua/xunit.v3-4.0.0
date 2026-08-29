@@ -9,6 +9,9 @@ public sealed class FixtureTests(TelemetryFixture telemetry)
     public void AssemblyFixtureIsInitializedBeforeTests() => Assert.True(telemetry.Initialized);
 
     [Fact]
+    public void AssemblyFixtureSawTheAssemblyStart() => Assert.True(telemetry.AssemblyStarted);
+
+    [Fact]
     public void FixtureObservesTheRunningTest()
     {
         var displayName = TestContext.Current.Test!.TestDisplayName;

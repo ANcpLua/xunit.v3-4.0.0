@@ -10,6 +10,7 @@ public sealed class DataTests
         -1, 1, 0
         """;
 
+    private const string CsvLabel = "csv";
     private const string AsciiLabel = "ascii";
     private const string UnicodeLabel = "unicode";
     private const string AsciiText = "hello";
@@ -28,6 +29,16 @@ public sealed class DataTests
     {
         Assert.Equal(sum, left + right);
         Assert.Contains(string.Format(null, LabelFormat, TestContext.Current.Test!.TestLabel), TestContext.Current.Test.TestDisplayName);
+    }
+
+    // 4.0: DataAttribute.Label applies one label to every row of the attribute; ITypeAwareDataAttribute.MemberType
+    // let the attribute stamp the declaring type as a trait.
+    [Theory, InlineCsvData(AdditionCsv, Label = CsvLabel)]
+    public void AttributeLabelAndMemberTypeReachEveryRow(int left, int right, int sum)
+    {
+        Assert.Equal(sum, left + right);
+        Assert.Equal(CsvLabel, TestContext.Current.Test!.TestLabel);
+        Assert.Contains(nameof(DataTests), TestContext.Current.TestCase!.Traits[InlineCsvDataAttribute.SourceTypeTrait]);
     }
 
     // 4.0: ITheoryDataRow.Label -> ITestMetadata.TestLabel, and IncludeTestCaseIndex appends a 1-based,

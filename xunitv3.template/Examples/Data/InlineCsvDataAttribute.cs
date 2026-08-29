@@ -10,8 +10,10 @@ namespace xunitv3.template.Examples.Data;
 /// row with its source line so display names read <c>Method [1, 2, 3]</c> instead of the generic argument dump.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public sealed class InlineCsvDataAttribute(string csv) : DataAttribute
+public sealed class InlineCsvDataAttribute(string csv) : DataAttribute, ITypeAwareDataAttribute
 {
+    public const string SourceTypeTrait = "SourceType";
+
     private const char RowSeparator = '\n';
     private const char FieldSeparator = ',';
     private const string ArityMismatchFormat = "CSV row '{0}' has {1} field(s) but {2} expects {3} parameter(s)";
@@ -31,6 +33,9 @@ public sealed class InlineCsvDataAttribute(string csv) : DataAttribute
 
     public override bool SupportsDiscoveryEnumeration() => true;
 
+    // ITypeAwareDataAttribute: the framework hands over the declaring type of the decorated method before GetData runs.
+    public Type? MemberType { get; set; }
+
     private ITheoryDataRow ToRow(string line, MethodInfo testMethod, Type[] parameterTypes)
     {
         var fields = line.Split(FieldSeparator, StringSplitOptions.TrimEntries);
@@ -49,6 +54,7 @@ public sealed class InlineCsvDataAttribute(string csv) : DataAttribute
         {
             Explicit = ExplicitAsNullable,
             Label = Label ?? line,
+            Traits = MemberType is null ? [] : new Dictionary<string, HashSet<string>>(StringComparer.Ordinal) { [SourceTypeTrait] = [MemberType.Name] },
             Skip = Skip,
             SkipType = SkipType,
             SkipUnless = SkipUnless,
